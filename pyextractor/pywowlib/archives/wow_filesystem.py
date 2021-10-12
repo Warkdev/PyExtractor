@@ -259,33 +259,37 @@ class WoWFileData:
 
         dir_files.sort(key=lambda s: os.path.splitext(s)[0])
 
-        locales = (
-            'frFR', 'deDE', 'enGB',
-            'enUS', 'itIT', 'koKR',
-            'zhCN', 'zhTW', 'ruRU',
-            'esES', 'esMX', 'ptBR'
-        )
+        # WoW Classic has no locale.
+        if WoWVersionManager().client_version > WoWVersions.CLASSIC:
+            locales = (
+                'frFR', 'deDE', 'enGB',
+                'enUS', 'itIT', 'koKR',
+                'zhCN', 'zhTW', 'ruRU',
+                'esES', 'esMX', 'ptBR'
+            )
 
-        for locale in locales:
-            locale_path = os.path.join(path, locale)
-            token = locale
-            if os.path.exists(locale_path):
-                break
+            for locale in locales:
+                locale_path = os.path.join(path, locale)
+                token = locale
+                if os.path.exists(locale_path):
+                    break
+            else:
+                raise NotADirectoryError('\nFailed to load game data. WoW client appears to be missing a locale folder.')
+
+            locale_dir_files = []
+            for f in os.listdir(locale_path):
+                cur_path = os.path.join(locale_path, f)
+
+                if os.path.isfile(cur_path) \
+                and os.path.splitext(f)[1].lower() == '.mpq' \
+                or not os.path.isfile(cur_path) \
+                and re.match(r'patch-{}-\w.mpq'.format(token), f.lower()):
+                    locale_dir_files.append(cur_path.lower().strip())
+
+            map(lambda x: x.lower(), locale_dir_files)
+            locale_dir_files.sort(key=lambda s: os.path.splitext(s)[0])
         else:
-            raise NotADirectoryError('\nFailed to load game data. WoW client appears to be missing a locale folder.')
-
-        locale_dir_files = []
-        for f in os.listdir(locale_path):
-            cur_path = os.path.join(locale_path, f)
-
-            if os.path.isfile(cur_path) \
-            and os.path.splitext(f)[1].lower() == '.mpq' \
-            or not os.path.isfile(cur_path) \
-            and re.match(r'patch-{}-\w.mpq'.format(token), f.lower()):
-                locale_dir_files.append(cur_path.lower().strip())
-
-        map(lambda x: x.lower(), locale_dir_files)
-        locale_dir_files.sort(key=lambda s: os.path.splitext(s)[0])
+            locale_dir_files = []
 
         return dir_files + locale_dir_files
 

@@ -3,8 +3,11 @@
 /* BEGIN: Cython Metadata
 {
     "distutils": {
-        "depends": [],
+        "depends": [
+            "CASCLib\\src\\CASCLib.h"
+        ],
         "include_dirs": [
+            ".",
             "CASCLib/src/"
         ],
         "language": "c++",
